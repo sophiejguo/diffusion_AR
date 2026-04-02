@@ -1,0 +1,6 @@
+# Placeholder config for the multiscale VAE training entrypoint.
+model:
+  z_channels: 32
+  ch: 128
+  v_patch_nums: [1, 2, 3, 4, 5, 6, 8, 10, 13, 16]
+

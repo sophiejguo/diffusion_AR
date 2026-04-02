@@ -1,0 +1,4 @@
+# Diffusion-augmented VAR configuration placeholder.
+model:
+  diffusion_batch_mul: 4
+

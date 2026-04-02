@@ -4,6 +4,8 @@ import torch.nn as nn
 from .quant import VectorQuantizer2
 from .var import VAR
 from .vqvae import VQVAE
+from .diffusion_var import DiffusionVAR
+from .diffloss import DiffLoss
 
 
 def build_vae_var(
