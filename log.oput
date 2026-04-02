@@ -1,0 +1,215 @@
+[04-09 05:56:24] (AR/VAR/utils/arg_util.py, line 175)=> [tf32] [precis] torch.get_float32_matmul_precision(): high
+[04-09 05:56:24] (AR/VAR/utils/arg_util.py, line 176)=> [tf32] [ conv ] torch.backends.cudnn.allow_tf32: True
+[04-09 05:56:24] (AR/VAR/utils/arg_util.py, line 177)=> [tf32] [matmul] torch.backends.cuda.matmul.allow_tf32: True
+[04-09 05:56:24] (iffusion_AR/VAR/train.py, line  51)=> global bs=16, local bs=16
+[04-09 05:56:24] (iffusion_AR/VAR/train.py, line  52)=> initial args:
+{
+  data_path           : ./imagenet_subset/
+  exp_name            : test_3
+  vfast               : 0
+  tfast               : 0
+  depth               : 16
+  ini                 : -1
+  hd                  : 0.02
+  aln                 : 0.5
+  alng                : 1e-05
+  fp16                : 0
+  tblr                : 0.0001
+  tlr                 : 6.25e-06
+  twd                 : 0.05
+  twde                : 0.05
+  tclip               : 2.0
+  ls                  : 0.0
+  bs                  : 16
+  batch_size          : 16
+  glb_batch_size      : 16
+  ac                  : 1
+  ep                  : 250
+  wp                  : 5.0
+  wp0                 : 0.005
+  wpe                 : 0.01
+  sche                : lin0
+  opt                 : adamw
+  afuse               : True
+  saln                : False
+  anorm               : True
+  fuse                : True
+  pn                  : 1_2_3_4_5_6_8_10_13_16
+  patch_size          : 16
+  patch_nums          : (1, 2, 3, 4, 5, 6, 8, 10, 13, 16)
+  resos               : (16, 32, 48, 64, 80, 96, 128, 160, 208, 256)
+  data_load_reso      : 256
+  mid_reso            : 1.125
+  hflip               : False
+  workers             : 0
+  pg                  : 0.0
+  pg0                 : 4
+  pgwp                : 0.8333333333333334
+  cmd                 : --data_path=./imagenet_subset/ --exp_name test_3 --bs 16
+  branch              : main
+  commit_id           : 3f1029565306d1b471643e7c360294c8a0b2a8e4
+  commit_msg          : [upd] Third-party Usage and Research
+  acc_mean            : None
+  acc_tail            : None
+  L_mean              : None
+  L_tail              : None
+  vacc_mean           : None
+  vacc_tail           : None
+  vL_mean             : None
+  vL_tail             : None
+  grad_norm           : None
+  cur_lr              : None
+  cur_wd              : None
+  cur_it              : 
+  cur_ep              : 
+  remain_time         : 
+  finish_time         : 
+  local_out_dir_path  : /home/skambha6/chenlab/diffusion_AR/VAR/local_output
+  tb_log_dir_path     : /home/skambha6/chenlab/diffusion_AR/VAR/local_output/tb-VARd16__pn1_2_3_4_5_6_8_10_13_16__b16ep250adamlr0.0001wd0.05
+  log_txt_path        : /home/skambha6/chenlab/diffusion_AR/VAR/local_output/log.txt
+  last_ckpt_path      : /home/skambha6/chenlab/diffusion_AR/VAR/local_output/ar-ckpt-last.pth
+  tf32                : True
+  seed                : None
+  same_seed_for_all_ranks: 0
+  local_debug         : False
+  dbg_nan             : False
+  auto_resume         : False
+}
+
+[04-09 05:56:24] (iffusion_AR/VAR/train.py, line  56)=> [build PT data] ...
+
+[04-09 05:56:24] (ion_AR/VAR/utils/data.py, line  34)=> [Dataset] len(train_set)=6394, len(val_set)=500, num_classes=1000
+[04-09 05:56:24] (ion_AR/VAR/utils/data.py, line  48)=> Transform [train] = 
+[04-09 05:56:24] (ion_AR/VAR/utils/data.py, line  51)=> Resize(size=288, interpolation=lanczos, max_size=None, antialias=True)
+[04-09 05:56:24] (ion_AR/VAR/utils/data.py, line  51)=> RandomCrop(size=(256, 256), padding=None)
+[04-09 05:56:24] (ion_AR/VAR/utils/data.py, line  51)=> ToTensor()
+[04-09 05:56:24] (ion_AR/VAR/utils/data.py, line  51)=> <function normalize_01_into_pm1 at 0x7a90599c32e0>
+[04-09 05:56:24] (ion_AR/VAR/utils/data.py, line  54)=> ---------------------------
+
+[04-09 05:56:24] (ion_AR/VAR/utils/data.py, line  48)=> Transform [val] = 
+[04-09 05:56:24] (ion_AR/VAR/utils/data.py, line  51)=> Resize(size=288, interpolation=lanczos, max_size=None, antialias=True)
+[04-09 05:56:24] (ion_AR/VAR/utils/data.py, line  51)=> CenterCrop(size=(256, 256))
+[04-09 05:56:24] (ion_AR/VAR/utils/data.py, line  51)=> ToTensor()
+[04-09 05:56:24] (ion_AR/VAR/utils/data.py, line  51)=> <function normalize_01_into_pm1 at 0x7a90599c32e0>
+[04-09 05:56:24] (ion_AR/VAR/utils/data.py, line  54)=> ---------------------------
+
+[04-09 05:56:24] (iffusion_AR/VAR/train.py, line  80)=> [dataloader multi processing] ...     [dataloader multi processing](*) finished! (0.00s)
+[04-09 05:56:24] (iffusion_AR/VAR/train.py, line  86)=> [dataloader] gbs=16, lbs=16, iters_train=400, types(tr, va)=('DatasetFolder', 'DatasetFolder')
+[04-09 05:56:24] (ion_AR/VAR/models/var.py, line  98)=> 
+[constructor]  ==== flash_if_available=True (0/16), fused_if_available=True (fusing_add_ln=0/16, fusing_mlp=0/16) ==== 
+    [VAR config ] embed_dim=1024, num_heads=16, depth=16, mlp_ratio=4.0
+    [drop ratios ] drop_rate=0.0, attn_drop_rate=0.0, drop_path_rate=0.0666667 (tensor([0.0000, 0.0044, 0.0089, 0.0133, 0.0178, 0.0222, 0.0267, 0.0311, 0.0356,
+        0.0400, 0.0444, 0.0489, 0.0533, 0.0578, 0.0622, 0.0667]))
+
+[04-09 05:56:24] (ion_AR/VAR/models/var.py, line 239)=> [init_weights] VAR with init_std=0.0180422
+[04-09 05:56:24] (iffusion_AR/VAR/train.py, line 119)=> [INIT] VAR model = VAR(
+  drop_path_rate=0.0666667
+  (word_embed): Linear(in_features=32, out_features=1024, bias=True)
+  (class_emb): Embedding(1001, 1024)
+  (lvl_embed): Embedding(10, 1024)
+  (shared_ada_lin): Identity()
+  (blocks): ModuleList(
+    (0): AdaLNSelfAttn(
+      shared_aln=False
+      (drop_path): Identity()
+      (attn): SelfAttention(
+        using_flash=False, using_xform=False, attn_l2_norm=True
+        (mat_qkv): Linear(in_features=1024, out_features=3072, bias=False)
+        (proj): Linear(in_features=1024, out_features=1024, bias=True)
+        (proj_drop): Identity()
+      )
+      (ffn): FFN(
+        fused_mlp_func=False
+        (fc1): Linear(in_features=1024, out_features=4096, bias=True)
+        (act): GELU(approximate='tanh')
+        (fc2): Linear(in_features=4096, out_features=1024, bias=True)
+        (drop): Identity()
+      )
+      (ln_wo_grad): LayerNorm((1024,), eps=1e-06, elementwise_affine=False)
+      (ada_lin): Sequential(
+        (0): SiLU()
+        (1): Linear(in_features=1024, out_features=6144, bias=True)
+      )
+    )
+    (1-15): 15 x AdaLNSelfAttn(
+      shared_aln=False
+      (drop_path): DropPath((drop_prob=...))
+      (attn): SelfAttention(
+        using_flash=False, using_xform=False, attn_l2_norm=True
+        (mat_qkv): Linear(in_features=1024, out_features=3072, bias=False)
+        (proj): Linear(in_features=1024, out_features=1024, bias=True)
+        (proj_drop): Identity()
+      )
+      (ffn): FFN(
+        fused_mlp_func=False
+        (fc1): Linear(in_features=1024, out_features=4096, bias=True)
+        (act): GELU(approximate='tanh')
+        (fc2): Linear(in_features=4096, out_features=1024, bias=True)
+        (drop): Identity()
+      )
+      (ln_wo_grad): LayerNorm((1024,), eps=1e-06, elementwise_affine=False)
+      (ada_lin): Sequential(
+        (0): SiLU()
+        (1): Linear(in_features=1024, out_features=6144, bias=True)
+      )
+    )
+  )
+  (head_nm): AdaLNBeforeHead(
+    (ln_wo_grad): LayerNorm((1024,), eps=1e-06, elementwise_affine=False)
+    (ada_lin): Sequential(
+      (0): SiLU()
+      (1): Linear(in_features=1024, out_features=2048, bias=True)
+    )
+  )
+  (head): Linear(in_features=1024, out_features=4096, bias=True)
+)
+
+
+[04-09 05:56:24] (iffusion_AR/VAR/train.py, line 121)=> [INIT][#para] VAE=108.95, VAE.enc=44.11, VAE.dec=64.65, VAE.quant=0.17
+[04-09 05:56:24] (iffusion_AR/VAR/train.py, line 122)=> [INIT][#para] VAR=310.28
+
+
+[04-09 05:56:24] (/VAR/utils/lr_control.py, line  99)=> [get_param_groups] param_groups = 
+{ 'D': { 'lr_sc': 1.0,
+         'params': "('word_embed.weight, class_emb.weight, blocks.0.attn.mat_qkv.weight, blocks.0.attn.proj.weight, blocks.0.ffn.fc1.weight, blocks.0.ffn.fc2.weight, blocks.0.ada_lin.1.weight, '\n"
+                   " 'blocks.1.attn.mat_qkv.weight, blocks.1.attn.proj.weight, blocks.1.ffn.fc1.weight, blocks.1.ffn.fc2.weight, blocks.1.ada_lin.1.weight, blocks.2.attn.mat_qkv.weight, blocks.2.attn.proj.weight, '\n"
+                   " 'blocks.2.ffn.fc1.weight, blocks.2.ffn.fc2.weight, blocks.2.ada_lin.1.weight, blocks.3.attn.mat_qkv.weight, blocks.3.attn.proj.weight, blocks.3.ffn.fc1.weight, blocks.3.ffn.fc2.weight, '\n"
+                   " 'blocks.3.ada_lin.1.weight, blocks.4.attn.mat_qkv.weight, blocks.4.attn.proj.weight, blocks.4.ffn.fc1.weight, blocks.4.ffn.fc2.weight, blocks.4.ada_lin.1.weight, blocks.5.attn.mat_qkv.weight, '\n"
+                   " 'blocks.5.attn.proj.weight, blocks.5.ffn.fc1.weight, blocks.5.ffn.fc2.weight, blocks.5.ada_lin.1.weight, blocks.6.attn.mat_qkv.weight, blocks.6.attn.proj.weight, blocks.6.ffn.fc1.weight, '\n"
+                   " 'blocks.6.ffn.fc2.weight, blocks.6.ada_lin.1.weight, blocks.7.attn.mat_qkv.weight, blocks.7.attn.proj.weight, blocks.7.ffn.fc1.weight, blocks.7.ffn.fc2.weight, blocks.7.ada_lin.1.weight, '\n"
+                   " 'blocks.8.attn.mat_qkv.weight, blocks.8.attn.proj.weight, blocks.8.ffn.fc1.weight, blocks.8.ffn.fc2.weight, blocks.8.ada_lin.1.weight, blocks.9.attn.mat_qkv.weight, blocks.9.attn.proj.weight, '\n"
+                   " 'blocks.9.ffn.fc1.weight, blocks.9.ffn.fc2.weight, blocks.9.ada_lin.1.weight, blocks.10.attn.mat_qkv.weight, blocks.10.attn.proj.weight, blocks.10.ffn.fc1.weight, blocks.10.ffn.fc2.weight, '\n"
+                   " 'blocks.10.ada_lin.1.weight, blocks.11.attn.mat_qkv.weight, blocks.11.attn.proj.weight, blocks.11.ffn.fc1.weight, blocks.11.ffn.fc2.weight, blocks.11.ada_lin.1.weight, '\n"
+                   " 'blocks.12.attn.mat_qkv.weight, blocks.12.attn.proj.weight, blocks.12.ffn.fc1.weight, blocks.12.ffn.fc2.weight, blocks.12.ada_lin.1.weight, blocks.13.attn.mat_qkv.weight, '\n"
+                   " 'blocks.13.attn.proj.weight, blocks.13.ffn.fc1.weight, blocks.13.ffn.fc2.weight, blocks.13.ada_lin.1.weight, blocks.14.attn.mat_qkv.weight, blocks.14.attn.proj.weight, blocks.14.ffn.fc1.weight, '\n"
+                   " 'blocks.14.ffn.fc2.weight, blocks.14.ada_lin.1.weight, blocks.15.attn.mat_qkv.weight, blocks.15.attn.proj.weight, blocks.15.ffn.fc1.weight, blocks.15.ffn.fc2.weight, blocks.15.ada_lin.1.weight, '\n"
+                   " 'head_nm.ada_lin.1.weight, head.weight')",
+         'wd_sc': 1.0},
+  'ND': { 'lr_sc': 1.0,
+          'params': "('pos_start, pos_1LC, word_embed.bias, lvl_embed.weight, blocks.0.attn.scale_mul_1H11, blocks.0.attn.q_bias, blocks.0.attn.v_bias, blocks.0.attn.proj.bias, blocks.0.ffn.fc1.bias, '\n"
+                    " 'blocks.0.ffn.fc2.bias, blocks.0.ada_lin.1.bias, blocks.1.attn.scale_mul_1H11, blocks.1.attn.q_bias, blocks.1.attn.v_bias, blocks.1.attn.proj.bias, blocks.1.ffn.fc1.bias, blocks.1.ffn.fc2.bias, '\n"
+                    " 'blocks.1.ada_lin.1.bias, blocks.2.attn.scale_mul_1H11, blocks.2.attn.q_bias, blocks.2.attn.v_bias, blocks.2.attn.proj.bias, blocks.2.ffn.fc1.bias, blocks.2.ffn.fc2.bias, blocks.2.ada_lin.1.bias, '\n"
+                    " 'blocks.3.attn.scale_mul_1H11, blocks.3.attn.q_bias, blocks.3.attn.v_bias, blocks.3.attn.proj.bias, blocks.3.ffn.fc1.bias, blocks.3.ffn.fc2.bias, blocks.3.ada_lin.1.bias, '\n"
+                    " 'blocks.4.attn.scale_mul_1H11, blocks.4.attn.q_bias, blocks.4.attn.v_bias, blocks.4.attn.proj.bias, blocks.4.ffn.fc1.bias, blocks.4.ffn.fc2.bias, blocks.4.ada_lin.1.bias, '\n"
+                    " 'blocks.5.attn.scale_mul_1H11, blocks.5.attn.q_bias, blocks.5.attn.v_bias, blocks.5.attn.proj.bias, blocks.5.ffn.fc1.bias, blocks.5.ffn.fc2.bias, blocks.5.ada_lin.1.bias, '\n"
+                    " 'blocks.6.attn.scale_mul_1H11, blocks.6.attn.q_bias, blocks.6.attn.v_bias, blocks.6.attn.proj.bias, blocks.6.ffn.fc1.bias, blocks.6.ffn.fc2.bias, blocks.6.ada_lin.1.bias, '\n"
+                    " 'blocks.7.attn.scale_mul_1H11, blocks.7.attn.q_bias, blocks.7.attn.v_bias, blocks.7.attn.proj.bias, blocks.7.ffn.fc1.bias, blocks.7.ffn.fc2.bias, blocks.7.ada_lin.1.bias, '\n"
+                    " 'blocks.8.attn.scale_mul_1H11, blocks.8.attn.q_bias, blocks.8.attn.v_bias, blocks.8.attn.proj.bias, blocks.8.ffn.fc1.bias, blocks.8.ffn.fc2.bias, blocks.8.ada_lin.1.bias, '\n"
+                    " 'blocks.9.attn.scale_mul_1H11, blocks.9.attn.q_bias, blocks.9.attn.v_bias, blocks.9.attn.proj.bias, blocks.9.ffn.fc1.bias, blocks.9.ffn.fc2.bias, blocks.9.ada_lin.1.bias, '\n"
+                    " 'blocks.10.attn.scale_mul_1H11, blocks.10.attn.q_bias, blocks.10.attn.v_bias, blocks.10.attn.proj.bias, blocks.10.ffn.fc1.bias, blocks.10.ffn.fc2.bias, blocks.10.ada_lin.1.bias, '\n"
+                    " 'blocks.11.attn.scale_mul_1H11, blocks.11.attn.q_bias, blocks.11.attn.v_bias, blocks.11.attn.proj.bias, blocks.11.ffn.fc1.bias, blocks.11.ffn.fc2.bias, blocks.11.ada_lin.1.bias, '\n"
+                    " 'blocks.12.attn.scale_mul_1H11, blocks.12.attn.q_bias, blocks.12.attn.v_bias, blocks.12.attn.proj.bias, blocks.12.ffn.fc1.bias, blocks.12.ffn.fc2.bias, blocks.12.ada_lin.1.bias, '\n"
+                    " 'blocks.13.attn.scale_mul_1H11, blocks.13.attn.q_bias, blocks.13.attn.v_bias, blocks.13.attn.proj.bias, blocks.13.ffn.fc1.bias, blocks.13.ffn.fc2.bias, blocks.13.ada_lin.1.bias, '\n"
+                    " 'blocks.14.attn.scale_mul_1H11, blocks.14.attn.q_bias, blocks.14.attn.v_bias, blocks.14.attn.proj.bias, blocks.14.ffn.fc1.bias, blocks.14.ffn.fc2.bias, blocks.14.ada_lin.1.bias, '\n"
+                    " 'blocks.15.attn.scale_mul_1H11, blocks.15.attn.q_bias, blocks.15.attn.v_bias, blocks.15.attn.proj.bias, blocks.15.ffn.fc1.bias, blocks.15.ffn.fc2.bias, blocks.15.ada_lin.1.bias, '\n"
+                    " 'head_nm.ada_lin.1.bias, head.bias')",
+          'wd_sc': 0.0}}
+
+[04-09 05:56:24] (/VAR/utils/lr_control.py, line 104)=> [get_param_groups][rank0] type(model).__name__='VAR' count=202, numel=310283520
+[04-09 05:56:24] (/VAR/utils/lr_control.py, line 105)=> 
+[04-09 05:56:24] (iffusion_AR/VAR/train.py, line 137)=> [INIT] optim=functools.partial(<class 'torch.optim.adamw.AdamW'>, betas=(0.9, 0.95), fused=True), opt_kw={'lr': 6.25e-06, 'weight_decay': 0}
+
+[04-09 05:56:27] (ion_AR/VAR/utils/misc.py, line 316)=> [Ep]: [   0/250]  [  0/400]  eta: 0:14:06  tlr: 3.1e-08  tnm: 0.31  Lm: 8.318 (8.318)  Lt: 8.318 (8.318)  Accm: 0.02 (0.02)  Acct: 0.00 (0.00)  time: 2.1164  data: 0.0758
+[1;34mwandb[0m: 
+[1;34mwandb[0m: 🚀 View run [33mwobbly-vortex-12[0m at: [34mhttps://wandb.ai/skambhampati/diffusion-ar/runs/e3wvgtll[0m
+[1;34mwandb[0m: Find logs at: [1;35mwandb/run-20250408_175623-e3wvgtll/logs[0m

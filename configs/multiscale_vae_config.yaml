@@ -1,0 +1,38 @@
+# MultiScaleVAE Configuration
+
+# Model settings
+model:
+  z_channels: 32
+  ch: 128
+  dropout: 0.0
+  beta: 0.25
+  residual_ratio: 0.5
+  share_resi_ratio: 4
+  v_patch_nums: [1, 2, 3, 4, 5, 6, 8, 10, 13, 16]
+  conv_ks: 3
+
+# Training settings
+training:
+  batch_size: 32
+  epochs: 100
+  lr: 2.0e-5
+  lr_g_factor: 1.0
+  use_ema: true
+  
+# Data settings
+data:
+  data_path: "/om/user/sophiejg/project/diffVAR/mit6.S982/projects/diffusion_AR/cifar10_imagenet_format"
+  data_load_reso: 32
+  workers: 4
+  hflip: true
+
+# Output settings
+output:
+  output_dir: "./outputs/multiscale_vae"
+  log_dir: "./logs"
+  checkpoint_interval: 20
+
+# Distributed training settings
+distributed:
+  enabled: true
+  local_rank: 0

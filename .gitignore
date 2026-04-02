@@ -1,0 +1,19 @@
+# Ignore the cifar10_imagenet_format directory
+cifar10_imagenet_format/
+
+# Ignore the data directory
+data/
+
+# Ignore any directory named logs, anywhere in the repo
+logs/
+**/logs/
+local_output/
+# Ignore any directory named wandb, anywhere in the repo
+wandb/
+**/wandb/
+
+# Ignore any directory named .DS_Store, anywhere in the repo
+.DS_Store
+
+slurm-*.out
+*.egg-info

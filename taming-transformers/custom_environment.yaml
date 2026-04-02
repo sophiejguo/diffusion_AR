@@ -1,0 +1,38 @@
+name: taming
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  # Explicitly use standard CPython (not GraalPy)
+  - python=3.8.5
+  - pip=20.3
+  # Updated CUDA toolkit for PyTorch 1.8.1
+  - cudatoolkit=11.1
+  # Core scientific packages
+  - numpy=1.19.2
+  # Other conda packages
+  - pip:
+    # Updated PyTorch ecosystem
+    - torch==1.8.1+cu111
+    - torchvision==0.9.1+cu111
+    - torchaudio==0.8.1
+    # Pin Pillow version to avoid compatibility issues
+    - pillow==9.5.0
+    # Keep original dependencies
+    - albumentations==0.4.3
+    - opencv-python==4.1.2.30
+    - pudb==2019.2
+    - imageio==2.9.0
+    - imageio-ffmpeg==0.4.2
+    - pytorch-lightning==1.0.8
+    - omegaconf==2.0.0
+    - test-tube>=0.7.5
+    - streamlit>=0.73.1
+    - einops==0.3.0
+    - more-itertools>=8.0.0
+    - transformers==4.3.1
+    - wandb
+    # Install current package in development mode
+    - -e .
