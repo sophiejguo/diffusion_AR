@@ -165,6 +165,56 @@ class VectorQuantizer2(nn.Module):
         
         return f_hat_or_idx_Bl
     
+    def f_to_idxBl_and_prequant(self, f_BChw: torch.Tensor) -> Tuple[List[torch.LongTensor], List[torch.Tensor]]:
+        """
+        Runs the multi-scale residual quantization loop once and returns both:
+          - idx_Bl:      List[LongTensor (B, pn*pn)]  — discrete codebook indices per scale
+                         (used for teacher-forced AR input via idxBl_to_var_input)
+          - prequant_Bl: List[Tensor    (B, pn*pn, C)] — continuous pre-quantization residuals per scale
+                         (used as diffusion targets; these are the raw encoder residuals *before*
+                          the nearest-neighbour lookup, i.e. the features the paper calls z_s)
+        """
+        B, C, H, W = f_BChw.shape
+        f_no_grad = f_BChw.detach()
+        f_rest = f_no_grad.clone()
+        f_hat = torch.zeros_like(f_rest)
+
+        idx_Bl: List[torch.LongTensor] = []
+        prequant_Bl: List[torch.Tensor] = []
+
+        SN = len(self.v_patch_nums)
+        for si, pn in enumerate(self.v_patch_nums):
+            # --- pre-quantization continuous residual at this scale ---
+            if si != SN - 1:
+                z_NC = F.interpolate(f_rest, size=(pn, pn), mode='area').permute(0, 2, 3, 1).reshape(B, pn * pn, C)
+            else:
+                z_NC = f_rest.permute(0, 2, 3, 1).reshape(B, pn * pn, C)
+            prequant_Bl.append(z_NC)   # continuous; shape (B, pn*pn, C)
+
+            # --- nearest-neighbour lookup (quantization) ---
+            z_NC_flat = z_NC.reshape(-1, C)
+            if self.using_znorm:
+                z_NC_flat = F.normalize(z_NC_flat, dim=-1)
+                idx_N = torch.argmax(z_NC_flat @ F.normalize(self.embedding.weight.data.T, dim=0), dim=1)
+            else:
+                d = torch.sum(z_NC_flat.square(), dim=1, keepdim=True) + torch.sum(self.embedding.weight.data.square(), dim=1, keepdim=False)
+                d.addmm_(z_NC_flat, self.embedding.weight.data.T, alpha=-2, beta=1)
+                idx_N = torch.argmin(d, dim=1)
+
+            idx_Bl.append(idx_N.reshape(B, pn * pn))
+
+            # --- update residual for next scale ---
+            idx_Bhw = idx_N.view(B, pn, pn)
+            if si != SN - 1:
+                h_BChw = F.interpolate(self.embedding(idx_Bhw).permute(0, 3, 1, 2), size=(H, W), mode='bicubic').contiguous()
+            else:
+                h_BChw = self.embedding(idx_Bhw).permute(0, 3, 1, 2).contiguous()
+            h_BChw = self.quant_resi[si / (SN - 1)](h_BChw)
+            f_hat.add_(h_BChw)
+            f_rest.sub_(h_BChw)
+
+        return idx_Bl, prequant_Bl
+
     # ===================== idxBl_to_var_input: only used in VAR training, for getting teacher-forcing input =====================
     def idxBl_to_var_input(self, gt_ms_idx_Bl: List[torch.Tensor]) -> torch.Tensor:
         next_scales = []

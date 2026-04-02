@@ -63,13 +63,13 @@ class DiffusionVARTrainer(object):
             B = label_B.shape[0]
             inp_B3HW = inp_B3HW.to(dist.get_device(), non_blocking=True)
             label_B = label_B.to(dist.get_device(), non_blocking=True)
-            gt_idx_Bl: List[ITen] = self.vae_local.img_to_idxBl(inp_B3HW)
-            gt_embed_Bl = self.vae_local.quantize.embedding(torch.cat(gt_idx_Bl, dim=1)).cuda()
+            # Use pre-quantization continuous residuals as diffusion targets
+            gt_idx_Bl, gt_prequant_Bl = self.vae_local.img_to_idxBl_and_prequant(inp_B3HW)
+            gt_prequant_BL = torch.cat(gt_prequant_Bl, dim=1)  # (B, L, Cvae)
             x_BLCv_wo_first_l: Ten = self.quantize_local.idxBl_to_var_input(gt_idx_Bl)
-            self.var_wo_ddp.forward
             x_BLV = self.var_wo_ddp(label_B, x_BLCv_wo_first_l)
-            mask = torch.ones_like(x_BLV).cuda()
-            L_mean += self.forward_diffusion_loss(x_BLV, gt_embed_Bl, mask)
+            mask = torch.ones_like(x_BLV)
+            L_mean += self.forward_diffusion_loss(x_BLV, gt_prequant_BL, mask)
             tot += B
         self.var_wo_ddp.train(training)
 
@@ -109,16 +109,17 @@ class DiffusionVARTrainer(object):
         B = label_B.shape[0]
         self.var.require_backward_grad_sync = stepping
 
-        gt_idx_Bl: List[ITen] = self.vae_local.img_to_idxBl(inp_B3HW)
-        gt_BL = torch.cat(gt_idx_Bl, dim=1)
+        # Use pre-quantization continuous residuals as diffusion targets.
+        # gt_prequant_Bl[k] has shape (B, pn_k*pn_k, Cvae) — the raw encoder residual at scale k
+        # before the nearest-neighbour codebook lookup. This is the z_s described in Section 2.2.
+        gt_idx_Bl, gt_prequant_Bl = self.vae_local.img_to_idxBl_and_prequant(inp_B3HW)
+        gt_prequant_BL = torch.cat(gt_prequant_Bl, dim=1)  # (B, L, Cvae)
         x_BLCv_wo_first_l: Ten = self.quantize_local.idxBl_to_var_input(gt_idx_Bl)
-        gt_embed_Bl = self.vae_local.quantize.embedding(gt_BL).cuda()
 
         with self.var_opt.amp_ctx:
-            self.var_wo_ddp.forward
             x_BLV = self.var(label_B, x_BLCv_wo_first_l)
-            mask = torch.ones_like(x_BLV).cuda()
-            loss = self.forward_diffusion_loss(x_BLV, gt_embed_Bl, mask)
+            mask = torch.ones_like(x_BLV)
+            loss = self.forward_diffusion_loss(x_BLV, gt_prequant_BL, mask)
             if prog_si >= 0:
                 bg, ed = self.begin_ends[prog_si]
                 assert x_BLV.shape[1] == gt_BL.shape[1] == ed
@@ -130,10 +131,56 @@ class DiffusionVARTrainer(object):
 
         grad_norm, scale_log2 = self.var_opt.backward_clip_step(loss=loss, stepping=stepping)
         if it == 0 or it in metric_lg.log_iters:
-            mask = torch.ones_like(x_BLV).cuda()
-            Lmean = self.forward_diffusion_loss(x_BLV, gt_embed_Bl, mask)
+            with torch.no_grad():
+                mask = torch.ones_like(x_BLV)
+                Lmean = self.forward_diffusion_loss(x_BLV, gt_prequant_BL, mask)
             grad_norm = grad_norm.item()
-            metric_lg.update(Lm=Lmean, tnm=grad_norm)
+            # Lt, Accm, Acct are not meaningful for diffusion loss; log as -1 for compatibility
+            metric_lg.update(Lm=Lmean, Lt=-1, Accm=-1, Acct=-1, tnm=grad_norm)
 
         self.var_wo_ddp.prog_si = self.vae_local.quantize.prog_si = -1
         return grad_norm, scale_log2
+
+    def get_config(self):
+        return {
+            'patch_nums':   self.patch_nums, 'resos': self.resos,
+            'label_smooth': self.label_smooth,
+            'prog_it':      self.prog_it, 'last_prog_si': self.last_prog_si, 'first_prog': self.first_prog,
+        }
+
+    def state_dict(self):
+        state = {'config': self.get_config()}
+        for k in ('var_wo_ddp', 'vae_local', 'var_opt'):
+            m = getattr(self, k)
+            if m is not None:
+                if hasattr(m, '_orig_mod'):
+                    m = m._orig_mod
+                state[k] = m.state_dict()
+        return state
+
+    def load_state_dict(self, state, strict=True, skip_vae=False):
+        for k in ('var_wo_ddp', 'vae_local', 'var_opt'):
+            if skip_vae and 'vae' in k:
+                continue
+            m = getattr(self, k)
+            if m is not None:
+                if hasattr(m, '_orig_mod'):
+                    m = m._orig_mod
+                ret = m.load_state_dict(state[k], strict=strict)
+                if ret is not None:
+                    missing, unexpected = ret
+                    print(f'[DiffusionVARTrainer.load_state_dict] {k} missing:  {missing}')
+                    print(f'[DiffusionVARTrainer.load_state_dict] {k} unexpected:  {unexpected}')
+
+        config: dict = state.pop('config', None)
+        if config is not None:
+            self.prog_it = config.get('prog_it', 0)
+            self.last_prog_si = config.get('last_prog_si', -1)
+            self.first_prog = config.get('first_prog', True)
+            for k, v in self.get_config().items():
+                if config.get(k, None) != v:
+                    err = f'[DiffusionVARTrainer.load_state_dict] config mismatch:  this.{k}={v} (ckpt.{k}={config.get(k, None)})'
+                    if strict:
+                        raise AttributeError(err)
+                    else:
+                        print(err)

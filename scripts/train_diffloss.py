@@ -93,12 +93,12 @@ def build_everything(args: arg_util.Args):
     
     # build models
     from torch.nn.parallel import DistributedDataParallel as DDP
-    from models import DiffusionVAR, VQVAE, build_vae_var
+    from models import DiffusionVAR, VQVAE, build_vae_diffusion_var
     from trainers import DiffusionVARTrainer
     from utils.amp_sc import AmpOptimizer
     from utils.lr_controler import filter_params
     
-    vae_local, var_wo_ddp = build_vae_var(
+    vae_local, var_wo_ddp = build_vae_diffusion_var(
         V=4096, Cvae=32, ch=160, share_quant_resi=4,        # hard-coded VQVAE hyperparameters
         device=dist.get_device(), patch_nums=args.patch_nums,
         num_classes=num_classes, depth=args.depth, shared_aln=args.saln, attn_l2_norm=args.anorm,
@@ -112,6 +112,19 @@ def build_everything(args: arg_util.Args):
             os.system(f'wget https://huggingface.co/FoundationVision/var/resolve/main/{vae_ckpt}')
     dist.barrier()
     vae_local.load_state_dict(torch.load(vae_ckpt, map_location='cpu'), strict=True)
+
+    # Optionally load pretrained VAR transformer weights into DiffusionVAR backbone.
+    # DiffusionVAR shares the same transformer blocks as VAR but adds DiffLoss and removes
+    # the discrete head, so we load with strict=False to skip mismatched parameters.
+    if args.use_pretrained:
+        var_ckpt = f'var_d{args.depth}.pth'
+        if not os.path.exists(var_ckpt) and dist.is_local_master():
+            os.system(f'wget https://huggingface.co/FoundationVision/var/resolve/main/{var_ckpt}')
+        dist.barrier()
+        print(f'[INIT] Loading pretrained VAR weights from {var_ckpt} into DiffusionVAR (strict=False)')
+        missing, unexpected = var_wo_ddp.load_state_dict(torch.load(var_ckpt, map_location='cpu'), strict=False)
+        print(f'[INIT] Missing keys: {missing}')
+        print(f'[INIT] Unexpected keys: {unexpected}')
     
     vae_local: VQVAE = args.compile_model(vae_local, args.vfast)
     var_wo_ddp: DiffusionVAR = args.compile_model(var_wo_ddp, args.tfast)

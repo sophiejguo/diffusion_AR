@@ -32,6 +32,7 @@ class Args(Tap):
     # VAR
     tfast: int = 0      # torch.compile VAR; =0: not compile; 1: compile with 'reduce-overhead'; 2: compile with 'max-autotune'
     depth: int = 16     # VAR depth
+    use_pretrained: bool = False  # load pretrained VAR weights (var_d{depth}.pth) before fine-tuning
     # VAR initialization
     ini: float = -1     # -1: automated model parameter initialization
     hd: float = 0.02    # head.w *= hd
