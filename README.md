@@ -138,8 +138,6 @@ The canonical training entrypoints are in `scripts/`:
 python -m scripts.train
 python -m scripts.train_var
 python -m scripts.train_diffloss
-python -m scripts.train_vae
-python -m scripts.train_multiscale_vae
 ```
 
 These scripts handle:

@@ -6,7 +6,7 @@ import torch.nn as nn
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data import DataLoader
 
-import dist
+from utils import dist
 from models import DiffusionVAR, VQVAE, VectorQuantizer2, DiffLoss
 from utils.amp_sc import AmpOptimizer
 from utils.misc import MetricLogger, TensorboardLogger

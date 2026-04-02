@@ -17,3 +17,13 @@ wandb/
 
 slurm-*.out
 *.egg-info
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml

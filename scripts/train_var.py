@@ -9,7 +9,7 @@ from functools import partial
 import torch
 from torch.utils.data import DataLoader
 
-import dist
+from utils import dist
 from utils import arg_util, misc
 from utils.data import build_dataset
 from utils.data_sampler import DistInfiniteBatchSampler, EvalDistributedSampler

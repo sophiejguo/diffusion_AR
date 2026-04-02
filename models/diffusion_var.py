@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 from huggingface_hub import PyTorchModelHubMixin
 
-import dist
+from utils import dist
 from .basic_var import AdaLNBeforeHead, AdaLNSelfAttn
 from .diffloss import DiffLoss
 from .helpers import gumbel_softmax_with_rng, sample_with_top_k_top_p_
